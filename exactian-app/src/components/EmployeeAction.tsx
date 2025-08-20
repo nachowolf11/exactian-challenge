@@ -13,13 +13,8 @@ export default function EmployeeAction({ type }: Props) {
   const [formData, setFormData] = useState<FormData>({ documentNumber: "", timestamp: "" });
   const [status, setStatus] = useState<AttendanceStatus>({ error: "", success: "", workTime: null });
   const [isLoading, setIsLoading] = useState(false);
-  
-  const { checkIn, checkOut } = useAttendance();
 
-  const resetForm = () => {
-    setFormData({ documentNumber: "", timestamp: "" });
-    setStatus({ error: "", success: "", workTime: null });
-  };
+  const { checkIn, checkOut } = useAttendance();
 
   const handleAction = async () => {
     if (!formData.documentNumber) {
@@ -34,17 +29,17 @@ export default function EmployeeAction({ type }: Props) {
       if (type === "IN") {
         await checkIn(formData.documentNumber, formData.timestamp || undefined);
         setStatus(prev => ({ ...prev, success: getSuccessMessage(type) }));
-        resetForm();
+        setFormData({ documentNumber: "", timestamp: "" });
       } else {
         const response = await checkOut(formData.documentNumber, formData.timestamp || undefined);
         const { totalTime } = response;
-        
+
         if (totalTime) {
           const workTime = { hours: Math.floor(totalTime / 60), minutes: totalTime % 60 };
-          setStatus(prev => ({ 
-            ...prev, 
+          setStatus(prev => ({
+            ...prev,
             success: getSuccessMessage(type, workTime),
-            workTime 
+            workTime
           }));
         } else {
           setStatus(prev => ({ ...prev, success: getSuccessMessage(type) }));
@@ -71,25 +66,25 @@ export default function EmployeeAction({ type }: Props) {
       <h2 className="font-bold text-lg">
         {isCheckIn ? "Registrar Entrada" : "Registrar Salida"}
       </h2>
-      
+
       {status.error && (
-        <StatusMessage 
+        <StatusMessage
           message={status.error}
           className="bg-red-100 border-red-400 text-red-700"
         />
       )}
-      
+
       {status.success && (
-        <StatusMessage 
+        <StatusMessage
           message={status.success}
           className="bg-green-100 border-green-400 text-green-700"
         />
       )}
-      
+
       {status.workTime && !isCheckIn && (
         <WorkTimeInfo workTime={status.workTime} />
       )}
-      
+
       {(status.success || status.workTime) && (
         <button
           onClick={() => setStatus({ error: "", success: "", workTime: null })}
@@ -98,14 +93,14 @@ export default function EmployeeAction({ type }: Props) {
           Limpiar
         </button>
       )}
-      
-      <FormInputs 
+
+      <FormInputs
         formData={formData}
         isLoading={isLoading}
         onInputChange={handleInputChange}
       />
-      
-      <ActionButton 
+
+      <ActionButton
         type={type}
         isLoading={isLoading}
         onClick={handleAction}

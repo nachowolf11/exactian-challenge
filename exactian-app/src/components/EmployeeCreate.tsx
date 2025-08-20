@@ -4,6 +4,7 @@ import { createEmployee, getErrorMessage } from "../services/api";
 import type { EmployeeFormData, EmployeeStatus } from "../types/employee";
 import { getEmployeeSuccessMessage, validateEmployeeForm } from "../utils/employeeUtils";
 import { CreateEmployeeButton, EmployeeFormInputs } from "./forms";
+import { StatusMessage } from "./ui";
 
 export default function EmployeeCreate() {
   const [formData, setFormData] = useState<EmployeeFormData>({ name: "", documentNumber: "" });
@@ -12,6 +13,9 @@ export default function EmployeeCreate() {
   const { refresh } = useEmployees();
 
   const handleSubmit = async () => {
+    if (isLoading) return;
+    setStatus({ error: "", success: "" });
+
     const validationError = validateEmployeeForm(formData.name, formData.documentNumber);
     if (validationError) {
       setStatus(prev => ({ ...prev, error: validationError }));
@@ -43,26 +47,28 @@ export default function EmployeeCreate() {
   return (
     <div className="bg-white shadow rounded p-4 space-y-2">
       <h2 className="font-bold text-lg">Crear Empleado</h2>
-      
+
       {status.error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {status.error}
-        </div>
+        <StatusMessage
+          message={status.error}
+          className="bg-red-100 border-red-400 text-red-700"
+        />
       )}
-      
+
       {status.success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-          {status.success}
-        </div>
+        <StatusMessage
+          message={status.success}
+          className="bg-green-100 border-green-400 text-green-700"
+        />
       )}
-      
-      <EmployeeFormInputs 
+
+      <EmployeeFormInputs
         formData={formData}
         isLoading={isLoading}
         onInputChange={handleInputChange}
       />
-      
-      <CreateEmployeeButton 
+
+      <CreateEmployeeButton
         isLoading={isLoading}
         onClick={handleSubmit}
       />
